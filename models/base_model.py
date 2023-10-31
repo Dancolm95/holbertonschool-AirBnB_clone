@@ -7,7 +7,7 @@ from uuid import uuid4
 from datetime import datetime
 
 class BaseModel:
-    def __init__(self)
+    def __init__(self, id, created_at, updated_at)
 
     tform = "%Y-%m-%dT%H:%M:%S.%f"
     self.id = str(uuid4())
