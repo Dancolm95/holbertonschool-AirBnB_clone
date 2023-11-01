@@ -19,7 +19,7 @@ class FileStorage:
         """
         Return the dictionary of all objects.
         """
-        return FileStorage.__objects
+        return self.__objects
 
     def new(self, obj):
         """
@@ -28,26 +28,33 @@ class FileStorage:
         Args:
             obj: the object add.
         """
-        key = "{}.{}".format(type(obj).__name__, obj.id)
-        FileStorage.__objects[key] = obj
+        key = obj.__class__.__name__ + "." + obj.id
+        self.__objects[key] = obj
 
     def save(self):
         """
-        Serialize __objects in JSON file.
+        Serialize __objects dictionary to a JSON file.
         """
-        with open(self.__file_path, 'w') as f:
-            objetos_serializados = json.dumps(f)
-            sel
+        new_dict = {}
+        for key, value in self.__objects.items():
+            new_dict[key] = value.to_dict()
+        with open(self.__file_path, "w") as file:
+            file.write(json.dumps(new_dict))
 
     def reload(self):
         """
-        Deserialize JSON file in  __objects.
+        Deserialize JSON file to  __objects dictionary.
         """
-        try:
 
-            with open(FileStorage.__file_path, "r") as f:
-                obj_dict = json.load(f)
-                FileStorage.__objects = obj_dict
+        from models.base_model import BaseModel
+        from models.amenity import Amenity
+        from models.city import City
+        from models.user import User
+        from models.place import Place
+        from models.review import Review
+        from models.state import State
 
-        except FileNotFoundError:
-            pass
+        if path.exists(self.__file_path):
+            with open(self.__file_path, "r") as file:
+                for value in json.loads(file.read()).values():
+                    eval(value["__class__"])(**value)
