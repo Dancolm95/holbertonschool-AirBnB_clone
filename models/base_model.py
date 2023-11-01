@@ -1,12 +1,12 @@
 #!/usr/bin/bash
 """Define the Basemodel class"""
 
-import models
-from uuid import uuid4
+import uuid
 from datetime import datetime
+from models import storage
 
 class BaseModel:
-    def __init__(self, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
 
         tform = "%Y-%m-%dT%H:%M:%S.%f"
         self.id = str(uuid4())
@@ -20,6 +20,7 @@ class BaseModel:
                     self.__dict__[k] = v
         else:
             models.storage.new(self)
+
     def save(self):
         self.updated_at = datetime.today()
         models.storage.save()
