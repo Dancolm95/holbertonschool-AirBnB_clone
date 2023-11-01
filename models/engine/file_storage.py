@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-import json
 from os import path
+import json
 """
 New class FileStorage.
 """
