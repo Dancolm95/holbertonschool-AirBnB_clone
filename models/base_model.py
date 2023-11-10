@@ -1,41 +1,61 @@
 #!/usr/bin/python3
-"""BaseModel class that defines all common attrs/methods for other classes"""
+"""
+Este modulo representa una clase BaseModel.
+"""
 import uuid
 from datetime import datetime
 from models import storage
 
 
 class BaseModel:
-    """BaseModel class"""
-
     def __init__(self, *args, **kwargs):
-        """Initializes a new instance"""
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        if kwargs:
-            dformat = "%Y-%m-%dT%H:%M:%S.%f"
-            for key, value in kwargs.items():
-                if key in ["created_at", "updated_at"]:
-                    setattr(self, key, datetime.strptime(value, dformat))
-                elif key != "__class__":
-                    setattr(self, key, value)
-        storage.new(self)
+        """
+        Inicializa una instancia de BaseModel.
+
+        Atributos:
+
+        Id: Genera un ID único utilizando uuid4 y
+        lo convierte en una cadena.
+
+        Created_at: Establece la fecha y hora de creación
+        al momento actual en formato ISO.
+
+        Updated_at: Establece la fecha y hora de actualización
+        al momento actual en formato ISO.
+
+        Args:
+            **Kwargs: Resibe un diccionario:
+        """
+        if bool(kwargs):
+            for k, v in kwargs.items():
+                if k != "__class__":
+                    setattr(self, k, v)
+
+            self.__dict__["created_at"] = datetime.strptime(
+                self.__dict__["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
+            self.__dict__["updated_at"] = datetime.strptime(
+                self.__dict__["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
+
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+            storage.new(self)
 
     def __str__(self):
-        """Str representation of an instance"""
-        class_name = self.__class__.__name__
-        return f"[{class_name}] ({self.id}) {self.__dict__}"
+        """Devuelve una representación de cadena del objeto."""
+        return f"[{self.__class__.__name__}] ({self.id}) "\
+            + str({k: v for k, v in self.__dict__.items() if k != '__class__'})
 
     def save(self):
-        """Updates the attr updated_at with the current datetime"""
+        """Actualiza el atributo updated_at con la fecha y hora actual."""
         self.updated_at = datetime.now()
         storage.save()
 
     def to_dict(self):
-        """Returns a dict containing all keys/values of __dict__"""
-        dict = self.__dict__.copy()
-        dict["__class__"] = self.__class__.__name__
-        dict["created_at"] = self.created_at.isoformat()
-        dict["updated_at"] = self.updated_at.isoformat()
-        return dict
+        """Devuelve un diccionario con los atributos del objeto."""
+        my_dict = dict(self.__dict__)
+        my_dict['created_at'] = self.__dict__['created_at'].isoformat()
+        my_dict['updated_at'] = self.__dict__['updated_at'].isoformat()
+        my_dict['__class__'] = self.__class__.__name__
+        return my_dict
