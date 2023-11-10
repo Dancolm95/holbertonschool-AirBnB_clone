@@ -1,10 +1,8 @@
 #!/usr/bin/python3
+"""defines the FileStorage class
+"""
 
-from os import path
 import json
-"""
-New class FileStorage.
-"""
 
 
 class FileStorage:
@@ -18,7 +16,8 @@ class FileStorage:
         """
         Return the dictionary of all objects.
         """
-        return self.__objects
+        return FileStorage.__objects
+
 
     def new(self, obj):
         """
@@ -27,33 +26,50 @@ class FileStorage:
         Args:
             obj: the object add.
         """
-        key = obj.__class__.__name__ + "." + obj.id
-        self.__objects[key] = obj
+        key = f"{obj.__class__.__name__}.{obj.id}"
+        FileStorage.__objects[key] = obj
+
 
     def save(self):
         """
         Serialize __objects dictionary to a JSON file.
         """
-        new_dict = {}
-        for key, value in self.__objects.items():
-            new_dict[key] = value.to_dict()
-        with open(self.__file_path, "w") as file:
-            file.write(json.dumps(new_dict))
+        data = {}
+        for k, obj in FileStorage.__objects.items():
+            data[k] = obj.to_dict()
+        with open(FileStorage.__file_path, "w") as f:
+            json.dump(data, f)
 
     def reload(self):
         """
         Deserialize JSON file to  __objects dictionary.
         """
 
-        from models.base_model import BaseModel
-        from models.amenity import Amenity
-        from models.city import City
-        from models.user import User
-        from models.place import Place
-        from models.review import Review
-        from models.state import State
+        try:
+            with open(FileStorage.__file_path, "r") as json_file:
+                objeto_rec = json.load(json_file)
+                for k, v in objeto_rec.items():
+                    from models.base_model import BaseModel
+                    FileStorage.__objects[k] = BaseModel(**v)
+        except FileNotFoundError:
+            return
 
-        if path.exists(self.__file_path):
-            with open(self.__file_path, "r") as file:
-                for value in json.loads(file.read()).values():
-                    eval(value["__class__"])(**value)
+    def attributes(self):
+        """
+        return a dict of attributes for diferent class
+        """
+
+        attributes = {
+                "BaseModel":{
+                    "id": str,
+                    "created_at": datetime.datetime,
+                    "updated_at": datetime.datetime
+                    },
+                "User": {
+                    "email": str,
+                    "pasword": str,
+                    "first_name": str,
+                    "last_name": str
+                    },
+        }
+        return attributes
