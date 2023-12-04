@@ -9,10 +9,9 @@ header {
 
 .logo {
   width: 100px;
-  height: 40px; 
+  height: 40px;
   margin-left: 20px;
-  background-image: url("https://i.postimg.cc/qM7B4tV5/logo.png");
+  background-image: url("../images/logo.png");
   background-size: cover;
   background-repeat: no-repeat;
 }
-
